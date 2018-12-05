@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:sec="http://www.springframework.org/schema/security"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-4.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+
+	<context:component-scan base-package="com.mvc.project"/>
+	
+	<sec:http pattern="/**" auto-config="true" authentication-manager-ref="userLoginManager">
+ 		<sec:intercept-url pattern="/permitAll" access="permitAll" />
+        <sec:intercept-url pattern="/hasAuthority" access="hasAuthority('USER')" />
+        <sec:intercept-url pattern="/hasAnyRole" access="hasAnyRole('ROLE_USER')" />
+
+        <sec:access-denied-handler error-page="/common/denied"/>
+        <sec:form-login username-parameter="userid" password-parameter="password" 
+        	login-page="/interceptor" 
+        	login-processing-url="/login"
+        	default-target-url="/index"
+        	authentication-failure-handler-ref="CustomAuthenticationFailureHandler"
+        	authentication-success-handler-ref="CustomLoginSuccessHandler"
+       	 />
+        <sec:logout logout-success-url="/index" logout-url="/logout" invalidate-session="true" 
+        		/>
+        <sec:csrf disabled="true"/>
+       	
+    </sec:http>
+    <!-- 사용자 로그인 처리 프로바이더  -->
+    <sec:authentication-manager id="userLoginManager">
+        <sec:authentication-provider ref="CustomAuthenticationProvider"/>
+    </sec:authentication-manager>
+        
+    <bean id="CustomAuthenticationProvider" class="com.mvc.project.springsecurity.CustomAuthenticationProvider" />
+    <bean id="CustomAuthenticationFailureHandler" class="com.mvc.project.springsecurity.CustomAuthenticationFailureHandler"  />
+    <bean id="CustomLoginSuccessHandler" class="com.mvc.project.springsecurity.CustomLoginSuccessHandler"  />
+   
+</beans>

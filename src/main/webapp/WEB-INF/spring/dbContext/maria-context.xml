@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+
+<!-- property -->
+	<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="/WEB-INF/config/properties/database.properties" />
+	</bean>
+
+	<!-- database connection pool dbcp2-->
+	<bean id="dataSource"
+		class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
+		<property name="driverClassName" value="${mysql.driverClassName}" />
+		<property name="url" value="${mysql.url}" />
+		<property name="username" value="${mysql.username}" />
+		<property name="password" value="${mysql.password}" />
+		<!-- doc: https://commons.apache.org/proper/commons-dbcp/configuration.html -->
+		<property name="initialSize" value="10" /> <!-- 최초 생성시 idle갯수 http://sjh836.tistory.com/148-->
+		<property name="maxTotal" value="200" /> <!-- 최대 connect 가능 갯수 동접자를 생각해야한다. -->
+		<property name="maxWaitMillis" value="2000" /> <!-- pool에 대기중인 idle이 없으면 대기하는 시간 -->
+		<property name="maxIdle" value="8" /> <!-- pool에 최대 idle 갯수 -->
+		<property name="minIdle" value="0" /> <!-- pool에 최소 유지 idle 갯수 -->
+		<property name="minEvictableIdleTimeMillis" value="2000" /> <!-- 버려진 idle 제거할때 time만큼 지난것만 확인수 -->
+		<property name="timeBetweenEvictionRunsMillis" value="5000" /> <!-- 버려진 idle 제거 하는 주기 -->
+		<property name="numTestsPerEvictionRun" value="3" /> <!-- 버려진 idle 제거시 갯수 -->
+		<property name="testWhileIdle" value="true" /> <!-- 버려진 idle 검사 여부 -->
+		<!-- <property name="validationQuery" value="SELECT 1" /> --> <!-- 검사시 사용할 쿼리 -->
+	</bean>
+	
+	<!-- SqlSessionFactory -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation" value="classpath:mybatis/sqlmap-config-webdb.xml" />
+		<property name="mapperLocations" value="classpath:mybatis/mapper/*.xml" />
+	</bean>
+	
+	<!-- SqlSession -->
+	<bean id="sqlSession"
+		class="org.mybatis.spring.SqlSessionTemplate" destroy-method="clearCache">
+		<constructor-arg name="sqlSessionFactory" ref="sqlSessionFactory" />
+	</bean>
+
+	<!-- mapperScan -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.spring.mvc.dao" />
+		<property name="sqlSessionTemplateBeanName" value="sqlSession" />
+	</bean>
+	
+	<!-- transactionManager --> 
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager"> 
+		<property name="dataSource" ref="dataSource" /> 
+	</bean> 
+
+	<!-- transactionAdvice -->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="get*" read-only="true" propagation="SUPPORTS"/>
+            <tx:method name="select*" read-only="true" propagation="SUPPORTS"/>
+            <tx:method name="insert*" propagation="REQUIRED"  rollback-for="Exception"/>
+            <tx:method name="update*" propagation="REQUIRED"  rollback-for="Exception"/>
+            <tx:method name="delete*" propagation="REQUIRED"  rollback-for="Exception"/>
+        </tx:attributes>
+    </tx:advice>
+    
+    <!-- aop config -->
+    <aop:config>
+        <aop:pointcut id="servicePointcut" expression="execution(* com.spring.mvc.service.*Service.*(..))" />
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="servicePointcut" />
+    </aop:config>
+</beans>
