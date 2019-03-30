@@ -48,7 +48,7 @@
 
 	<!-- mapperScan -->
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-		<property name="basePackage" value="com.mvc.project.dao" />
+		<property name="basePackage" value="com.project.instagram.dao" />
 		<property name="sqlSessionTemplateBeanName" value="sqlSession" />
 	</bean>
 	

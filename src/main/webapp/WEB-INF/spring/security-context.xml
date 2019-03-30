@@ -7,10 +7,10 @@
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
 
-	<context:component-scan base-package="com.mvc.project"/>
+	<context:component-scan base-package="com.project.instagram"/>
 	
 	<sec:http pattern="/**" auto-config="true" authentication-manager-ref="userLoginManager">
- 		<sec:intercept-url pattern="/permitAll" access="permitAll" />
+ 		<sec:intercept-url pattern="/**" access="permitAll" />
         <sec:intercept-url pattern="/hasAuthority" access="hasAuthority('USER')" />
         <sec:intercept-url pattern="/hasAnyRole" access="hasAnyRole('ROLE_USER')" />
 
@@ -32,8 +32,8 @@
         <sec:authentication-provider ref="CustomAuthenticationProvider"/>
     </sec:authentication-manager>
         
-    <bean id="CustomAuthenticationProvider" class="com.mvc.project.springsecurity.CustomAuthenticationProvider" />
-    <bean id="CustomAuthenticationFailureHandler" class="com.mvc.project.springsecurity.CustomAuthenticationFailureHandler"  />
-    <bean id="CustomLoginSuccessHandler" class="com.mvc.project.springsecurity.CustomLoginSuccessHandler"  />
+    <bean id="CustomAuthenticationProvider" class="com.project.instagram.springSecurity.CustomAuthenticationProvider" />
+    <bean id="CustomAuthenticationFailureHandler" class="com.project.instagram.springSecurity.CustomAuthenticationFailureHandler"  />
+    <bean id="CustomLoginSuccessHandler" class="com.project.instagram.springSecurity.CustomLoginSuccessHandler"  />
    
 </beans>

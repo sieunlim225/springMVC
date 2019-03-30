@@ -2,17 +2,27 @@
  
 <tiles-definitions>
 	
-	<definition name="anything/*" template="/any/{1}"/>
-    
-    <definition name="testlayout" template="/WEB-INF/tiles/layout/layout.jsp">
-        <put-attribute name="header" value="/WEB-INF/tiles/headfoot/header.jsp" />
-        <put-attribute name="sidebar" value="/WEB-INF/tiles/sidebar/sidebar.jsp" />
+	<!-- Empty Layout -->
+	<!-- template -->
+	<definition name="emptyLayout" template="/WEB-INF/tiles/layout/emptyLayout.jsp">
         <put-attribute name="footer" value="/WEB-INF/tiles/headfoot/footer.jsp" />
-
     </definition>
-	<definition name="*" extends="testlayout">
-        <put-attribute name="content" value="/WEB-INF/views/{1}.jsp" />
+    <!-- extends template -->
+    <definition name="main/*" extends="emptyLayout">
+        <put-attribute name="content" value="/WEB-INF/views/main/{1}.jsp" />
     </definition>
+    
+    <!-- General Layout -->
+	<!-- template -->
+	<definition name="commonLayout" template="/WEB-INF/tiles/layout/commonLayout.jsp">
+		<put-attribute name="header" value="/WEB-INF/tiles/headfoot/header.jsp" />
+        <put-attribute name="footer" value="/WEB-INF/tiles/headfoot/footer.jsp" />
+    </definition>
+    <!-- extends template -->
+    <definition name="*/*" extends="commonLayout">
+        <put-attribute name="content" value="/WEB-INF/views/{1}/{2}.jsp" />
+    </definition>
+   
     
  
 </tiles-definitions>
